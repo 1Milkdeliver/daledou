@@ -32,7 +32,12 @@ class Client:
         url = f"{self.BASE_URL}{path}"
         try:
             for _ in range(3):
-                response = await self._client.get(url)
+                try:
+                    response = await self._client.get(url)
+                except httpx.TimeoutException:
+                    # 网络超时（ConnectTimeout/ReadTimeout）自动重试
+                    await asyncio.sleep(0.5)
+                    continue
                 self.html = response.text
                 if "系统繁忙" in self.html:
                     await asyncio.sleep(0.2)
