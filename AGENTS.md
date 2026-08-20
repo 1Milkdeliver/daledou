@@ -142,3 +142,13 @@ async def 新活动名(d: DaLeDou):
 - **cookie 失效**（页面提示登录/重定向）：提示用户重新抓取 cookie 更新
   `config/dld_cookie.yaml`，不要试图用旧 cookie 硬闯
 - **定时任务状态**：`schtasks /Query /TN daledou-noon /FO LIST`
+
+## 机制研究工具（research/ 目录）
+
+用户在做乐斗机制研究（为原创游戏设计参考 + 自动化优化），有现成工具：
+
+- `uv run python research/snapshot.py` — 只读状态快照（角色属性/今日可做入口/各页面 HTML）
+- `uv run python research/diff.py 快照A 快照B` — 前后差分
+- `uv run python research/experiment.py 模块.任务` — 差分实验（快照→跑任务→快照→diff）
+
+详见 `research/README.md`。注意：只有 experiment.py 会真实操作游戏，选免费任务且遵守每日次数。

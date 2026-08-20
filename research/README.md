@@ -1,0 +1,34 @@
+# research/ — 乐斗机制研究工具（只读优先）
+
+对应 Codex 研究方案（先读状态 → 最小实验 → 前后差分 → 建模）的落地工具。
+**所有快照操作都是只读的**；只有 experiment.py 第 2 步会真实执行游戏任务，请只选免费/无消耗的任务。
+
+## 工具
+
+| 工具 | 用法 | 作用 |
+| --- | --- | --- |
+| `snapshot.py` | `uv run python research/snapshot.py` | 只读状态快照：角色属性（等级/体力/活力/战力/斗豆/斗币/鹅币/活跃度）、今日可做任务入口（对比注册任务表）、任务/活跃度/达人/好友/黄历页面原始 HTML |
+| `diff.py` | `uv run python research/diff.py 快照A.json 快照B.json` | 前后差分：角色属性变化、任务入口增删、各页面 HTML 文本变化 |
+| `experiment.py` | `uv run python research/experiment.py 模块.任务` | 差分实验：快照before → 执行任务 → 快照after → 自动diff，完整记录存 `log/experiments/` |
+
+## 快照内容说明
+
+- 输出到 `log/snapshots/YYYY-MM-DD_HHMMSS.json`（log/ 已被 gitignore，不会提交）
+- 每个账号含：`character`（解析好的属性）、`available_tasks`（今日可做任务，按 noon/evening 分组）、`pages`（各页面 raw_html + 纯文本预览）
+- 保留 raw_html 是为了后续机制分析（Codex 可自行解析任意字段）
+
+## 对应 Codex 研究方案
+
+1. **全量状态地图** → `snapshot.py`（角色/入口/任务/活跃度）+ daledou 任务代码（现成的状态机）
+2. **今日可做算法** → 连续多天跑 `snapshot.py`，对比 `available_tasks` 随等级/日期/资源的变化
+3. **行动状态机还原** → `experiment.py`，每类行动选一个免费任务做最小样本
+4. **前后快照差分** → `experiment.py` 内置（第 3 步），输出 `输入→输出` 记录
+5. **随机性研究** → 对同一免费行动（如邪神秘宝）多次 `experiment.py`，收集分布；注意每天次数有限
+6. **社交/运营闭环** → 好友/帮派相关只读页在快照里，配合实验观察奖励归因
+7. **数值模型** → 基于长期快照序列（角色成长）和实验记录拟合
+
+## 实验安全守则
+
+- 只做**免费/无消耗**任务的最小样本（邪神秘宝、幸运金蛋、每日登录礼等），且优先用当天已领过的（会自动跳过，验证流程用）
+- 需要消耗体力的实验（乐斗、历练）每天配额有限，先记录基线，谨慎执行
+- 不要高频重复请求；游戏按自然日结算，实验计划对齐每日重置
