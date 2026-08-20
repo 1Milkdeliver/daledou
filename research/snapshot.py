@@ -30,6 +30,23 @@ PAGES = [
     ("ledouvip", "cmd=ledouvip"),               # 乐斗达人等级
     ("friendlist", "cmd=friendlist&page=1"),    # 好友列表
     ("calender", "cmd=calender&op=2"),          # 乐斗黄历
+    # —— 研究扩展页（对应 Codex 研究主题，均为首页导航级只读页）——
+    ("battle_records", "cmd=info"),             # 乐斗记录（战报）
+    ("bag", "cmd=store"),                       # 背包（材料清单）
+    ("shop", "cmd=viewshop&type=3&shop=1&page=1"),   # 商店
+    ("upgrade", "cmd=viewupdate"),              # 强化（成长树）
+    ("blacksmith", "cmd=black_smith&op=0&type_id=0"),  # 铁匠铺（成长树）
+    ("astrolabe", "cmd=astrolabe"),             # 星盘（成长树）
+    ("ancient_gods", "cmd=ancient_gods&op=1&id=1"),    # 神魔录（保底机制）
+    ("mercenary", "cmd=newmercenary"),          # 佣兵（成长树）
+    ("enchant", "cmd=enchant"),                 # 器魂附魔（成长树）
+    ("formation", "cmd=formation"),             # 助阵（成长树）
+    ("inlaypearl", "cmd=inlaypearl&subcmd=index"),     # 镶嵌（成长树）
+    ("badge", "cmd=achievement"),               # 徽章馆（外观收藏）
+    ("glory", "cmd=glory"),                     # 荣耀成就（外观收藏）
+    ("rank", "cmd=perrank&sev=-1"),             # 排行（社交/榜单）
+    ("fame_hall", "cmd=fame_hall"),             # 名人堂（社交/榜单）
+    ("disciple", "cmd=disinfo"),                # 师徒（异步社交）
 ]
 
 
@@ -81,6 +98,19 @@ async def fetch_all(cookies: dict[str, dict[str, str]]):
                     "raw_html": html,
                     "preview": re.sub(r"<[^>]+>", " ", html)[:300],
                 }
+
+            # 战报详情：从乐斗记录里取第一条战报的完整 href 查询串（含 zapp_uin/sid 前缀，只读）
+            try:
+                records_html = pages["battle_records"]["raw_html"]
+                m = re.search(r'phonepk\?([^"\'<>]+)"[^>]*>查看乐斗过程', records_html)
+                if m:
+                    detail_html = await client.get(m.group(1).replace("&amp;", "&"))
+                    pages["battle_detail"] = {
+                        "raw_html": detail_html,
+                        "preview": re.sub(r"<[^>]+>", " ", detail_html)[:300],
+                    }
+            except Exception:
+                pass
 
         index_html = pages["index"]["raw_html"]
         snapshots[qq] = {

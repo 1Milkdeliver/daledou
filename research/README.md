@@ -11,8 +11,12 @@
 | 工具 | 用法 | 作用 |
 | --- | --- | --- |
 | `snapshot.py` | `uv run python research/snapshot.py` | 只读状态快照：角色属性（等级/体力/活力/战力/斗豆/斗币/鹅币/活跃度）、今日可做任务入口（对比注册任务表）、任务/活跃度/达人/好友/黄历页面原始 HTML |
+| `show_latest.py` | `uv run python research/show_latest.py` | 查看最近一次快照摘要 |
 | `diff.py` | `uv run python research/diff.py 快照A.json 快照B.json` | 前后差分：角色属性变化、任务入口增删、各页面 HTML 文本变化 |
 | `experiment.py` | `uv run python research/experiment.py 模块.任务` | 差分实验：快照before → 执行任务 → 快照after → 自动diff，完整记录存 `log/experiments/` |
+| `update_datapack.py` | `uv run python research/update_datapack.py` | 自动更新脱敏研究数据包（多日入口地图 + 实验记录 + 日志观测）；每天 22:00 由 `daledou-snapshot` 定时任务自动执行 |
+| `find_links.py` | `uv run python research/find_links.py [关键词]` | 列出最近快照首页全部入口链接（cmd 参数 → 文本），用于发现新只读页面 |
+| `preview_pages.py` | `uv run python research/preview_pages.py [页面名]` | 查看最近快照各页面的纯文本预览 |
 
 ## 快照内容说明
 

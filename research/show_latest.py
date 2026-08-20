@@ -11,13 +11,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 
 def main():
-    files = sorted(glob.glob(str(Path("log/snapshots") / "*.json")))
-    if not files:
+    candidates = sorted(glob.glob(str(Path("log/snapshots") / "*.json")))
+    if not candidates:
         print("没有快照，先运行 research/snapshot.py")
         sys.exit(1)
+    # 按修改时间取最新，避免 before_/after_ 实验快照干扰
+    files = sorted(candidates, key=lambda p: Path(p).stat().st_mtime)
 
     data = json.loads(Path(files[-1]).read_text(encoding="utf-8"))
-    print(f"最新快照: {files[-1]}")
+    print(f"最新快照: {Path(files[-1]).name}")
     for qq, s in data.items():
         if qq == "_meta":
             continue
