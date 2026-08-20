@@ -20,10 +20,11 @@ from research.diff import main as diff_main
 
 REPO = Path(__file__).resolve().parent.parent
 
-# 每日可做、免费、无消耗的领取/社交类实验
+# 每日可做、免费、无消耗的领取/抽取类实验
 DAILY_TASKS = [
     "noon.领取徒弟经验",  # 师徒贡献（异步社交归因）每日领取
     "noon.每日奖励",      # 每日登录奖励（固定产出）
+    "noon.邪神秘宝",      # 免费抽取（概率分布样本）
 ]
 
 

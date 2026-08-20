@@ -19,6 +19,9 @@
 | `preview_pages.py` | `uv run python research/preview_pages.py [页面名]` | 查看最近快照各页面的纯文本预览 |
 | `daily_experiments.py` | `uv run python research/daily_experiments.py` | 每日免费差分实验（领取徒弟经验/每日奖励）；每天 13:00 由 `daledou-experiments` 自动执行，抢在 13:05 日常任务前 |
 | `interface_probe.py` | `uv run python research/interface_probe.py` | 接口层只读探测（响应头/无效参数/频率/分页/UA/记录深度），结果存 `log/interface_probe.json` |
+| `battle_reports.py` | `uv run python research/battle_reports.py` | 战报样本归档（每天一条完整战报，优先历练 BOSS 同类型）；每天 14:30 由 `daledou-battlereports` 执行，存 `log/battle_reports/` |
+| `battle_data_analysis.py` | `uv run python research/battle_data_analysis.py` | 战报聚合分析（伤害/暴击倍率/回合结构/技能触发），结果存 `log/battle_stats.json` |
+| `entity_model.py` | `uv run python research/entity_model.py` | 快照 → 结构化账号实体模型（角色/背包/武器/佣兵/星石/徽章/徒弟/侠），存 `log/account_model.json` |
 
 ## 快照内容说明
 
