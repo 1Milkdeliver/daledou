@@ -17,6 +17,7 @@
 | `update_datapack.py` | `uv run python research/update_datapack.py` | 自动更新脱敏研究数据包（多日入口地图 + 实验记录 + 日志观测）；每天 22:00 由 `daledou-snapshot` 定时任务自动执行 |
 | `find_links.py` | `uv run python research/find_links.py [关键词]` | 列出最近快照首页全部入口链接（cmd 参数 → 文本），用于发现新只读页面 |
 | `preview_pages.py` | `uv run python research/preview_pages.py [页面名]` | 查看最近快照各页面的纯文本预览 |
+| `daily_experiments.py` | `uv run python research/daily_experiments.py` | 每日免费差分实验（领取徒弟经验/每日奖励）；每天 13:00 由 `daledou-experiments` 自动执行，抢在 13:05 日常任务前 |
 
 ## 快照内容说明
 

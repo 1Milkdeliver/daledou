@@ -65,11 +65,12 @@ schtasks /Query /TN daledou-noon /FO LIST      :: 查定时任务
 
 ## 四、每日自动化（已就绪，无需你干预）
 
-Windows 任务计划程序已注册四个定时任务，电脑开着到点自动跑：
+Windows 任务计划程序已注册五个定时任务，电脑开着到点自动跑：
 
 | 任务名 | 时间 | 干什么 |
 | --- | --- | --- |
 | `daledou-update` | 每天 09:00 | 订阅上游：fetch → rebase 合并 → 冒烟测试 |
+| `daledou-experiments` | 每天 13:00 | 免费差分实验（领取徒弟经验/每日奖励，早于日常任务） |
 | `daledou-noon` | 每天 13:05 | 跑全部日常任务 |
 | `daledou-evening` | 每天 20:05 | 跑收尾任务 |
 | `daledou-snapshot` | 每天 22:00 | 只读状态快照 + 研究数据包自动更新（存 log/snapshots/） |

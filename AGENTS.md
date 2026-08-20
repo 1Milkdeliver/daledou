@@ -83,6 +83,7 @@ powershell -File update.ps1                    :: 手动检查上游更新
 | `daledou-noon` | 每天 13:05 | `run_noon.bat`：跑全部日常 |
 | `daledou-evening` | 每天 20:05 | `run_evening.bat`：跑收尾任务 |
 | `daledou-snapshot` | 每天 22:00 | `run_snapshot.bat`：只读快照 + 研究数据包自动更新 |
+| `daledou-experiments` | 每天 13:00 | `run_experiments.bat`：免费差分实验（领取徒弟经验/每日奖励，早于日常任务） |
 
 查询：`schtasks /Query /TN daledou-noon /FO LIST`；删除：`schtasks /Delete /TN xxx /F`
 
