@@ -26,6 +26,10 @@
 | `activity_templates.py` | `uv run python research/activity_templates.py` | 135 个任务按接口模式归类到 6 类活动模板 |
 | `ops_analysis.py` | `uv run python research/ops_analysis.py` | 任务时间窗口表（32 条）+ 货币体系图（22 条） |
 | `state_tokens.py` | `uv run python research/state_tokens.py` | 状态令牌字典（扫描 336 页，客户端状态机令牌） |
+| `rank_analysis.py` | `uv run python research/rank_analysis.py` | 排行榜 Top-N 抓取与解析（等级/财富/荣誉/斗神塔/帮派），存 `log/one_shot/rank_lists/` |
+| `shop_analysis.py` | `uv run python research/shop_analysis.py` | 商店定价全表分析（86 件商品），存 `log/shop_prices.json` |
+| `battle_hits.py` | `uv run python research/battle_hits.py` | 战报→命中级结构化管道（回合/武器/技能/暴击/闪避/伤害），存 `log/hits_dataset.json` |
+| `fit_exp_curve.py` | `uv run python research/fit_exp_curve.py` | 经验曲线幂律拟合（10 个高等级锚点），存 `log/exp_curve_fit.json` |
 
 ## 快照内容说明
 
