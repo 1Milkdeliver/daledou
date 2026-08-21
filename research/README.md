@@ -30,6 +30,7 @@
 | `shop_analysis.py` | `uv run python research/shop_analysis.py` | 商店定价全表分析（86 件商品），存 `log/shop_prices.json` |
 | `battle_hits.py` | `uv run python research/battle_hits.py` | 战报→命中级结构化管道（回合/武器/技能/暴击/闪避/伤害），存 `log/hits_dataset.json` |
 | `fit_exp_curve.py` | `uv run python research/fit_exp_curve.py` | 经验曲线幂律拟合（10 个高等级锚点），存 `log/exp_curve_fit.json` |
+| `hit_quality_audit.py` | `uv run python research/hit_quality_audit.py` | 命中行解析质量审计（字段覆盖/武器名污染/行动错位），存 `log/hit_quality_audit.json` |
 
 ## 快照内容说明
 
