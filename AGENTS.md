@@ -83,9 +83,13 @@ powershell -File update.ps1                    :: 手动检查上游更新
 | `daledou-noon` | 每天 13:05 | `run_noon.bat`：跑全部日常 |
 | `daledou-evening` | 每天 20:05 | `run_evening.bat`：跑收尾任务 |
 | `daledou-snapshot` | 每天 22:00 | `run_snapshot.bat`：只读快照 + 研究数据包自动更新 |
-| `daledou-experiments` | 每天 13:00 | `run_experiments.bat`：免费差分实验（领取徒弟经验/每日奖励，早于日常任务） |
+| `daledou-experiments` | 每天 13:00 | `run_experiments.bat`：免费差分实验（领取徒弟经验/每日奖励/邪神秘宝，早于日常任务） |
 
 查询：`schtasks /Query /TN daledou-noon /FO LIST`；删除：`schtasks /Delete /TN xxx /F`
+
+> ⚠️ **重建任务的坑（2026-08-21 踩过）**：路径含空格（`D:\Deepseek Harness\...`）时，
+> schtasks `/TR` 必须写 `/TR "\"D:\Deepseek Harness\daledou\run_xxx.bat\""`（内层引号转义），
+> 否则路径被空格劈开，任务执行报 0x80070005 拒绝访问。已修复版重建脚本见 `fix_tasks.bat`。
 
 ## 上游订阅 / git 工作流
 
