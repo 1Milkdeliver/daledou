@@ -158,3 +158,10 @@ async def 新活动名(d: DaLeDou):
 - `uv run python research/experiment.py 模块.任务` — 差分实验（快照→跑任务→快照→diff）
 
 详见 `research/README.md`。注意：只有 experiment.py 会真实操作游戏，选免费任务且遵守每日次数。
+
+## 研究交接队列（DSH → Codex 自动同步）
+
+- **每次会话启动第一件事**：读 `research/交接队列.md`
+- 处理所有 `[NEW]` 条目：读其"落点文档+章节"，吸收 8 字段交接结论（研究问题/来源/观察量/证据等级/可复用结构/不可迁移/待验证/规则表字段）
+- 处理完把条目状态改为 `[已处理]` 并提交
+- DSH 会持续追加新条目；本仓库 research/ 文档是唯一研究交换通道（不传账号/Cookie/原始快照）
