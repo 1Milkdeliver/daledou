@@ -22,6 +22,10 @@
 | `battle_reports.py` | `uv run python research/battle_reports.py` | 战报样本归档（每天一条完整战报，优先历练 BOSS 同类型）；每天 14:30 由 `daledou-battlereports` 执行，存 `log/battle_reports/` |
 | `battle_data_analysis.py` | `uv run python research/battle_data_analysis.py` | 战报聚合分析（伤害/暴击倍率/回合结构/技能触发），结果存 `log/battle_stats.json` |
 | `entity_model.py` | `uv run python research/entity_model.py` | 快照 → 结构化账号实体模型（角色/背包/武器/佣兵/星石/徽章/徒弟/侠），存 `log/account_model.json` |
+| `one_shot_capture.py` | `uv run python research/one_shot_capture.py` | 一次性只读抓取：完整背包/商店全页签/排行榜子榜/徽章成就，存 `log/one_shot/` |
+| `activity_templates.py` | `uv run python research/activity_templates.py` | 135 个任务按接口模式归类到 6 类活动模板 |
+| `ops_analysis.py` | `uv run python research/ops_analysis.py` | 任务时间窗口表（32 条）+ 货币体系图（22 条） |
+| `state_tokens.py` | `uv run python research/state_tokens.py` | 状态令牌字典（扫描 336 页，客户端状态机令牌） |
 
 ## 快照内容说明
 
