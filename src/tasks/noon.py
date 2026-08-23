@@ -1,5 +1,6 @@
-﻿import asyncio
+import asyncio
 import random
+import re
 
 from src.tasks.register import TaskModule, Registry
 from src.utils.daledou import DaLeDou
@@ -39,6 +40,47 @@ async def 恢复(d: DaLeDou):
     """
     await c_ensure_stamina(d, threshold=95)
     await c_ensure_vitality(d, threshold=30)
+
+
+@register()
+async def 开通达人(d: DaLeDou):
+    """
+    达人续费（2026-08-24 实测）：
+      - 斗豆月卡每天领 150 斗豆（monthcard&sub=1，已开通时）
+      - 达人剩余<5天 且 斗豆≥350 → 买周卡达人（350斗豆/7天）
+      - 斗豆月卡未开通 且 斗币≥1500 → 买月卡（1500斗币，31天×150斗豆）
+    注意：购买类操作需要有效 skey 会话；当前 cookie skey 为空会被拦截
+    （"不允许此操作，请重新登录确认"），此时仅记录提醒不报错。
+    """
+    # 1) 领斗豆月卡 150 斗豆
+    await d.get("cmd=monthcard&sub=1")
+    if "还没有开通斗豆月卡" in d.html:
+        # 2) 尝试买月卡（1500 斗币）
+        await d.get("cmd=index&style=1")
+        m = re.search(r"斗币:(\d+)", d.html)
+        if m and int(m.group(1)) >= 1500:
+            await d.get("cmd=buy&id=3645&num=1&type=7")
+            d.log(f"尝试买斗豆月卡: {d.find(r'</p><p>(.*?)<br />') or d.find(r'很抱歉[^<]{1,20}') or '完成'}")
+        else:
+            d.log("斗豆月卡未开通且斗币不足1500")
+    else:
+        d.log(d.find(r"】</p><p>(.*?)<br />") or "已领150斗豆")
+
+    # 3) 达人续费：剩余天数<5 且 斗豆≥350 时买周卡
+    await d.get("cmd=ledouvip")
+    if "还未成为达人" in d.html:
+        need_renew = True
+    else:
+        m = re.search(r"剩余天数：(\d+)", d.html)
+        need_renew = bool(m and int(m.group(1)) < 5)
+    if need_renew:
+        await d.get("cmd=index&style=1")
+        m2 = re.search(r"斗豆:(\d+)", d.html)
+        if m2 and int(m2.group(1)) >= 350:
+            await d.get("cmd=buy&id=3112&num=1&type=3")
+            d.log(f"尝试买周卡达人: {d.find(r'</p><p>(.*?)<br />') or d.find(r'很抱歉[^<]{1,20}') or '完成'}")
+        else:
+            d.log(f"达人待续但斗豆不足（{m2.group(1) if m2 else '?'}/350）")
 
 
 @register()
