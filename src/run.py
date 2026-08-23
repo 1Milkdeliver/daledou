@@ -116,9 +116,16 @@ class TaskRunner:
                             try:
                                 if f">{task_name}<" in index_html:
                                     d.task_name = task_name
-                                    await task_func(d)
-                            except RequestError:
-                                raise
+                                    try:
+                                        await task_func(d)
+                                    except RequestError:
+                                        # 网络类错误（超时/繁忙）重试一次，避免偶发失败
+                                        await asyncio.sleep(0.5)
+                                        await task_func(d)
+                            except RequestError as e:
+                                # 重试仍失败：记录并继续，不中断整个账号剩余任务
+                                d.log(f"任务网络错误（重试后仍失败）: {e}", task_name)
+                                continue
                             except Exception:
                                 d.log(traceback.format_exc(), task_name)
                                 continue

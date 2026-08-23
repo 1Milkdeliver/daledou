@@ -37,7 +37,19 @@ TYPE_KEYWORDS = {
             "乐斗剑君", "乐斗菜菜", "新手小王子", "羊魔王", "乐斗教主",
             "乐斗帅帅", "乐斗姜公", "乐斗月璇", "乐斗源大侠", "马大师",
             "好友", "侠侣"],
+    "仙武修真": ["寻仙", "问道", "连儿", "帝释天", "张三丰"],
+    "副本": ["江湖长梦", "深渊", "异兽", "迷阵", "遗迹", "画卷"],
 }
+
+
+def extract_opponent(text: str) -> str:
+    """从战报文本提取对手名（用于"其他"类标签）"""
+    for pat in (r"(?:挑战|干掉|与|对战)([\u4e00-\u9fa5A-Za-z0-9·★]{1,10})",
+                r"BOSS([\u4e00-\u9fa5A-Za-z0-9·★]{1,10})"):
+        m = re.search(pat, text)
+        if m:
+            return m.group(1)
+    return "未知名"
 
 
 def text_of(html: str) -> str:
@@ -97,6 +109,14 @@ async def main():
                 picked[t] = r
             if len(picked) >= 3:
                 break
+
+        # 不足 3 条时用"其他"类去重补齐（每天尽量归档满 3 条不同类型战报）
+        if len(picked) < 3:
+            for r in records:
+                if all(r is not p for p in picked.values()):
+                    picked[f"其他_{extract_opponent(r['text'])}"] = r
+                if len(picked) >= 3:
+                    break
 
         date = datetime.now().strftime("%Y-%m-%d")
         for t, r in picked.items():
