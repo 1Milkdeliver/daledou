@@ -1,4 +1,4 @@
-import asyncio
+﻿import asyncio
 import random
 
 from src.tasks.register import TaskModule, Registry
@@ -204,7 +204,7 @@ async def 好友(d: DaLeDou):
     await d.get("cmd=friendlist&page=1")
     for u in d.findall(r"侠：.*?B_UID=(\d+)"):
         # 每次战斗前确保体力（背包充足，无限用）
-        await c_ensure_stamina(d, threshold=30)
+        await c_ensure_stamina(d, threshold=80)
         # 乐斗
         await d.get(f"cmd=fight&B_UID={u}")
         if "使用规则" in d.html:
@@ -240,7 +240,7 @@ async def 侠侣(d: DaLeDou):
         uin = d.findall(r"侠：.*?B_UID=(\d+)")
     for u in uin:
         # 每次战斗前确保体力（背包充足，无限用）
-        await c_ensure_stamina(d, threshold=30)
+        await c_ensure_stamina(d, threshold=80)
         # 乐斗
         await d.get(f"cmd=fight&B_UID={u}")
         if "使用规则" in d.html:
