@@ -2212,3 +2212,50 @@ async def 新春拜年(d: DaLeDou):
         # 赠礼
         await d.get("cmd=newAct&subtype=147&op=2")
         d.log("已赠礼")
+
+
+@register()
+async def 九宫宝库(d: DaLeDou):
+    """
+    九宫宝库：转盘消耗抽奖卡得钥匙进宝库；开棺消耗递增(1/2/4...张卡)。
+    循环 转盘→开棺→退出 直到抽奖卡不足（2026-08-21 实测白嫖：黄金卷轴*1/5倍暴击/徽章符文石*5）。
+    """
+    for _ in range(8):
+        # 查看当前状态（轮盘页 or 宝库页）
+        await d.get("cmd=lottery")
+        cards = d.find(r"剩余抽奖卡：(\d+)")
+        if cards == "0":
+            d.log("抽奖卡已用完")
+            break
+
+        if "drawbox" in d.html:
+            # 在宝库：开石棺直到抽奖卡不足
+            for idx in range(9):
+                await d.get(f"cmd=lottery&op=drawbox&index={idx}")
+                got = d.find(r"获得(?:了)?：([^<，。]{1,30})")
+                d.log(f"石棺{idx} -> {got or d.find(r'恭喜[^<]{1,30}') or '未中'}")
+                if "抽奖卡不足" in d.html:
+                    break
+            # 退出宝库回轮盘
+            await d.get("cmd=lottery&op=quitbox")
+            d.log("退出宝库")
+        else:
+            # 轮盘页：转动一次
+            await d.get("cmd=lottery&op=drawwheel")
+            d.log(f"转盘 -> {d.find(r'获得(?:了)?：([^，。]{1,20})') or '无结果'}")
+
+
+@register()
+async def 幸运鹅(d: DaLeDou):
+    """
+    万里挑一幸运鹅：被选中后每日礼包（gb_id=3~7 免费领取，实测 2026-08-21）。
+    已领取的礼包无"领取"链接自动跳过；鹅币余额为 0 时付费项领取会安全失败。
+    """
+    await d.get("cmd=betogoaway")
+    if "幸运鹅" not in d.html:
+        d.log("未获得幸运鹅资格")
+        return
+    for gb_id in d.findall(r'cmd=betogoaway&gb_id=(\d+)">领取'):
+        await d.get(f"cmd=betogoaway&gb_id={gb_id}")
+        got = d.find(r"恭喜[^<]{1,30}") or d.find(r"获得(?:了)?[^<]{1,30}")
+        d.log(f"礼包{gb_id} -> {got or '已领取'}")
