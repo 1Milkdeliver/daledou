@@ -7,6 +7,8 @@ from src.utils.date_time import DateTime
 from .common import (
     c_get_material_quantity,
     c_get_doushenta_cd,
+    c_ensure_stamina,
+    c_ensure_vitality,
     c_邪神秘宝,
     c_帮派商会,
     c_任务派遣中心,
@@ -32,35 +34,11 @@ async def 邪神秘宝(d: DaLeDou):
 @register()
 async def 恢复(d: DaLeDou):
     """
-    背包资源最大化：体力/活力不足时自动用药水补满（2026-08-23 盘点：
-    大体力5516/中1029/小3549/真896/活力药水118/小活力638，库存充足）。
-    保证后续 好友/侠侣/竞技场/历练 等每日战斗配额全部完成。
+    背包资源最大化：体力/活力不足时自动用药水补满（库存充足，无限用）。
+    体力补到 ~95，活力补到 ~30，保证后续 好友/侠侣/竞技场/历练 等每日战斗配额全部完成。
     """
-    async def read_stamina():
-        await d.get("cmd=index&style=1")
-        m = re.search(r"体力:(\d+)/(\d+)", d.html)
-        return (int(m.group(1)), int(m.group(2))) if m else (None, None)
-
-    # 体力：不足 85 时按 大→中→小 顺序补（大体力30点/中10/小10）
-    stamina, max_s = await read_stamina()
-    if stamina is not None:
-        for _ in range(6):
-            if stamina >= 85:
-                break
-            item_id = 3003 if stamina < 40 else (3002 if stamina < 70 else 3001)
-            await d.get(f"cmd=use&id={item_id}&store_type=0&page=1")
-            got = d.find(r"】</p><p>(.*?)<br />") or d.find(r"补充[^<]{1,20}") or "已用"
-            d.log(f"体力{stamina}->用药水{item_id}: {got}")
-            stamina, max_s = await read_stamina()
-            if stamina is None:
-                break
-
-    # 活力：不足 15 时用活力药水（3105）
-    await d.get("cmd=index&style=1")
-    m = re.search(r"活力:(\d+)/(\d+)", d.html)
-    if m and int(m.group(1)) < 15:
-        await d.get("cmd=use&id=3105&store_type=0&page=10")
-        d.log(f"活力{m.group(1)}->用活力药水: {d.find(r'】</p><p>(.*?)<br />') or '已用'}")
+    await c_ensure_stamina(d, threshold=95)
+    await c_ensure_vitality(d, threshold=30)
 
 
 @register()
@@ -225,6 +203,8 @@ async def 好友(d: DaLeDou):
     # 好友首页
     await d.get("cmd=friendlist&page=1")
     for u in d.findall(r"侠：.*?B_UID=(\d+)"):
+        # 每次战斗前确保体力（背包充足，无限用）
+        await c_ensure_stamina(d, threshold=30)
         # 乐斗
         await d.get(f"cmd=fight&B_UID={u}")
         if "使用规则" in d.html:
@@ -259,6 +239,8 @@ async def 侠侣(d: DaLeDou):
     else:
         uin = d.findall(r"侠：.*?B_UID=(\d+)")
     for u in uin:
+        # 每次战斗前确保体力（背包充足，无限用）
+        await c_ensure_stamina(d, threshold=30)
         # 乐斗
         await d.get(f"cmd=fight&B_UID={u}")
         if "使用规则" in d.html:

@@ -1,7 +1,35 @@
 import random
+import re
 
 from src.utils.daledou import DaLeDou
 from src.utils.date_time import DateTime
+
+
+async def c_ensure_stamina(d: DaLeDou, threshold: int = 50, item_id: int = 3003):
+    """体力不足阈值时用大体力(3003)补满。背包库存充足（5516 大体力），无限用。
+    返回是否补到阈值；体力满时服务器会拒绝使用（不浪费）。"""
+    for _ in range(5):
+        await d.get("cmd=index&style=1")
+        m = re.search(r"体力:(\d+)/(\d+)", d.html)
+        if not m:
+            return
+        if int(m.group(1)) >= threshold:
+            return
+        await d.get(f"cmd=use&id={item_id}&store_type=0&page=1")
+        d.log(f"补体力({item_id}): {d.find(r'</p><p>(.*?)<br />') or d.find() or '已补'}")
+
+
+async def c_ensure_vitality(d: DaLeDou, threshold: int = 15, item_id: int = 3105):
+    """活力不足阈值时用活力药水(3105)补。同理无限用。"""
+    for _ in range(5):
+        await d.get("cmd=index&style=1")
+        m = re.search(r"活力:(\d+)/(\d+)", d.html)
+        if not m:
+            return
+        if int(m.group(1)) >= threshold:
+            return
+        await d.get(f"cmd=use&id={item_id}&store_type=0&page=10")
+        d.log(f"补活力({item_id}): {d.find(r'</p><p>(.*?)<br />') or d.find() or '已补'}")
 
 
 async def c_get_material_quantity(d: DaLeDou, item_id: str | int) -> int:
