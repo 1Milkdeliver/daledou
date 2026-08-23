@@ -43,6 +43,90 @@ async def 恢复(d: DaLeDou):
 
 
 @register()
+async def 变强(d: DaLeDou):
+    """
+    战力提升（2026-08-24 实测参数，按性价比优先级）：
+      1. 铁匠铺匠心 升级十次（百炼钢，必成）
+      2. 星盘已镶嵌星石 升级（需材料星石，缺则停）
+      3. 武器必成升级（仅成功率=必成 且 黄金卷轴够）
+    按"攒一周强化一波"计划：仅每周日执行集中强化（周一到周六攒材料），
+    全程记录前后战力 → log/power_upgrade_records.json（供推算数值）
+    """
+    if DateTime.week() != 7:  # 仅周日集中强化
+        return
+    import json as _json
+    from datetime import datetime as _dt
+    from pathlib import Path as _Path
+
+    async def read_power():
+        await d.get("cmd=index&style=1")
+        m = re.search(r"战斗力[^：:]{0,30}[：:]([\d.]+)", d.html)
+        return m.group(1) if m else "?"
+
+    power_before = await read_power()
+    upgraded = []
+
+    # 1) 铁匠铺：匠心 升级十次（百炼钢充足）
+    await d.get("cmd=black_smith&op=0&type_id=0")
+    for _ in range(35):
+        await d.get("cmd=black_smith&op=1&type_id=0&times=10")
+        if "不足" in d.html or "不够" in d.html or "上限" in d.html:
+            d.log(f"铁匠铺十连: 材料不足/上限，停止")
+            break
+        d.log("铁匠铺十连: 完成")
+        upgraded.append("铁匠铺x10")
+        await asyncio.sleep(0.2)
+
+    # 2) 星盘：升级已镶嵌星石（需要材料星石，缺则停止）
+    await d.get("cmd=astrolabe")
+    for star in range(1, 7):
+        for socket in range(2):
+            await d.get(f"cmd=astrolabe&op=upgradegeminsocket&star={star}&socket={socket}&pages=1&show_kind=0")
+            if any(k in d.html for k in ("不足", "不够", "不能", "去商店购买")):
+                d.log(f"星石{star}-{socket}: 材料不足，停止星石升级")
+                break
+            d.log(f"星石{star}-{socket}升级: 完成")
+            upgraded.append(f"星石{star}-{socket}")
+            await asyncio.sleep(0.2)
+        else:
+            continue
+        break
+
+    # 3) 武器必成升级（黄金卷轴够才升）
+    await d.get("cmd=viewupdate")
+    gold = re.search(r"黄金卷轴\s*[：:]\s*(\d+)", d.html)
+    gold_n = int(gold.group(1)) if gold else 0
+    for m in re.finditer(r'cmd=update&id=(\d+)[^<]{0,200}?需卷轴:(\d+)\s*成功率:(必成)', d.html):
+        wid, cost = int(m.group(1)), int(m.group(2))
+        if gold_n >= cost:
+            await d.get(f"cmd=update&id={wid}")
+            got = d.find(r"</p>(.*?)<br />") or d.find(r"恭喜[^<]{1,20}") or "完成"
+            d.log(f"武器{wid}必成升级: {got}")
+            gold_n -= cost
+            upgraded.append(f"武器{wid}")
+            await asyncio.sleep(0.2)
+
+    power_after = await read_power()
+    d.log(f"战力提升完成: {power_before} -> {power_after}（{len(upgraded)} 项操作）")
+
+    # 记录供每周推算
+    rec = _Path("log/power_upgrade_records.json")
+    records = []
+    if rec.exists():
+        try:
+            records = _json.loads(rec.read_text(encoding="utf-8"))
+        except Exception:
+            records = []
+    records.append({
+        "time": _dt.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "power_before": power_before,
+        "power_after": power_after,
+        "operations": upgraded,
+    })
+    rec.write_text(_json.dumps(records, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+@register()
 async def 开通达人(d: DaLeDou):
     """
     达人续费（2026-08-24 实测）：
