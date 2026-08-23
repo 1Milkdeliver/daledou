@@ -134,7 +134,24 @@ async def 分享(d: DaLeDou):
             # 已经没有剩余的周挑战数
             # 您需要消耗斗神符才能继续挑战斗神塔
 
-    # 自动挑战
+    # 分享爬完后，只要不死就继续挑战；死亡且免费复活次数>0 则复活继续（2026-08-23 实测直通100层）
+    for _ in range(100):
+        await d.get("cmd=towerfight&type=0")
+        d.log(f"斗神塔 -> {d.find()}")
+        await asyncio.sleep(second)
+        if "您战胜了" in d.html:
+            continue
+        # 非胜利：败给 / 塔顶 / 需斗神符
+        if "败给" in d.html or "打趴" in d.html:
+            revive = re.search(r"剩余复活次数：(\d+)", d.html)
+            if revive and int(revive.group(1)) > 0:
+                await d.get("cmd=towerfight&type=2")  # 免费复活
+                d.log("斗神塔 -> 复活继续")
+                await asyncio.sleep(second)
+                continue
+        break  # 塔顶 / 需斗神符 / 复活次数用完
+
+    # 自动挑战收尾
     await d.get("cmd=towerfight&type=11")
     d.log(f"斗神塔 -> {d.find()}")
     await asyncio.sleep(second)
