@@ -1,4 +1,4 @@
-import asyncio
+﻿import asyncio
 import random
 import re
 
@@ -38,8 +38,8 @@ async def 恢复(d: DaLeDou):
     背包资源最大化：体力/活力不足时自动用药水补满（库存充足，无限用）。
     体力补到 ~95，活力补到 ~30，保证后续 好友/侠侣/竞技场/历练 等每日战斗配额全部完成。
     """
-    await c_ensure_stamina(d, threshold=95)
-    await c_ensure_vitality(d, threshold=30)
+    await c_ensure_stamina(d, threshold=70)
+    await c_ensure_vitality(d, threshold=20)
 
 
 @register()
@@ -279,6 +279,11 @@ async def 分享(d: DaLeDou):
         await asyncio.sleep(second)
         if "您战胜了" in d.html:
             continue
+        # 冷却中（战斗剩余时间）→ 等待重试，而非退出（2026-08-24 实测：爬太快触发冷却）
+        if "冷却" in d.html or "稍后" in d.html:
+            d.log("斗神塔 -> 冷却中，等待后重试")
+            await asyncio.sleep(second + 3)
+            continue
         # 非胜利：败给 / 塔顶 / 需斗神符
         if "败给" in d.html or "打趴" in d.html:
             revive = re.search(r"剩余复活次数：(\d+)", d.html)
@@ -330,7 +335,7 @@ async def 好友(d: DaLeDou):
     await d.get("cmd=friendlist&page=1")
     for u in d.findall(r"侠：.*?B_UID=(\d+)"):
         # 每次战斗前确保体力（背包充足，无限用）
-        await c_ensure_stamina(d, threshold=80)
+        await c_ensure_stamina(d, threshold=40)
         # 乐斗
         await d.get(f"cmd=fight&B_UID={u}")
         if "使用规则" in d.html:
@@ -366,7 +371,7 @@ async def 侠侣(d: DaLeDou):
         uin = d.findall(r"侠：.*?B_UID=(\d+)")
     for u in uin:
         # 每次战斗前确保体力（背包充足，无限用）
-        await c_ensure_stamina(d, threshold=80)
+        await c_ensure_stamina(d, threshold=40)
         # 乐斗
         await d.get(f"cmd=fight&B_UID={u}")
         if "使用规则" in d.html:

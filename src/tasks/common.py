@@ -5,31 +5,38 @@ from src.utils.daledou import DaLeDou
 from src.utils.date_time import DateTime
 
 
-async def c_ensure_stamina(d: DaLeDou, threshold: int = 50, item_id: int = 3003):
-    """体力不足阈值时用大体力(3003)补满。背包库存充足（5516 大体力），无限用。
-    返回是否补到阈值；体力满时服务器会拒绝使用（不浪费）。"""
+async def c_ensure_stamina(d: DaLeDou, threshold: int = 40):
+    """体力不足阈值时用药水补。按缺口选最小药水避免溢出浪费（2026-08-24 实测：
+    体力自然恢复 ~4.16/h（上限1/24每小时），缺口≤10用小体力(3001)、≤30用大体力(3003)、
+    更大用真体力(3041)。库存充足，但避免大药水补小缺口造成溢出。"""
     for _ in range(5):
         await d.get("cmd=index&style=1")
         m = re.search(r"体力:(\d+)/(\d+)", d.html)
         if not m:
             return
-        if int(m.group(1)) >= threshold:
+        cur, max_s = int(m.group(1)), int(m.group(2))
+        if cur >= threshold:
             return
+        gap = max_s - cur
+        item_id = 3001 if gap <= 10 else (3003 if gap <= 30 else 3041)
         await d.get(f"cmd=use&id={item_id}&store_type=0&page=1")
-        d.log(f"补体力({item_id}): {d.find(r'</p><p>(.*?)<br />') or d.find() or '已补'}")
+        d.log(f"补体力({item_id},缺口{gap}): {d.find(r'</p><p>(.*?)<br />') or d.find() or '已补'}")
 
 
-async def c_ensure_vitality(d: DaLeDou, threshold: int = 15, item_id: int = 3105):
-    """活力不足阈值时用活力药水(3105)补。同理无限用。"""
+async def c_ensure_vitality(d: DaLeDou, threshold: int = 15):
+    """活力不足阈值时用药水补。活力自然恢复 ~2.08/h；缺口≤15用小活力(3386)否则活力药水(3105)。"""
     for _ in range(5):
         await d.get("cmd=index&style=1")
         m = re.search(r"活力:(\d+)/(\d+)", d.html)
         if not m:
             return
-        if int(m.group(1)) >= threshold:
+        cur, max_v = int(m.group(1)), int(m.group(2))
+        if cur >= threshold:
             return
+        gap = max_v - cur
+        item_id = 3386 if gap <= 15 else 3105
         await d.get(f"cmd=use&id={item_id}&store_type=0&page=10")
-        d.log(f"补活力({item_id}): {d.find(r'</p><p>(.*?)<br />') or d.find() or '已补'}")
+        d.log(f"补活力({item_id},缺口{gap}): {d.find(r'</p><p>(.*?)<br />') or d.find() or '已补'}")
 
 
 async def c_get_material_quantity(d: DaLeDou, item_id: str | int) -> int:
