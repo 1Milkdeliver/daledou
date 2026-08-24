@@ -60,6 +60,58 @@ async def c_use_all_拳套(d: DaLeDou):
             break
 
 
+async def c_消耗体力(d: DaLeDou):
+    """好友 BOSS 战循环消耗体力：体力打空→补药水→继续打，直到药水用尽/体力不足。
+
+    2026-08-24 用户指令"补完就消耗"：恢复补满体力后，好友 BOSS 战可反复挑战
+    （实测每轮 8 个、无每日次数上限、每场耗 1 体力、发起需体力≥10），循环消耗
+    直到体力不足且所有体力药水型号都用完当日额度。挂在午间所有任务之后执行，
+    不影响好友/帮友/侠侣/历练等任务的正常配额。
+    """
+    for _ in range(30):
+        # 当前体力
+        await d.get("cmd=index&style=1")
+        m = re.search(r"体力:(\d+)/(\d+)", d.html)
+        if not m:
+            return
+        cur = int(m.group(1))
+        if cur < 10:
+            # 体力打空（好友战需≥10）：依次尝试 真体力/大体力/小体力，某型号当日额度用完换更小的
+            before = cur
+            for item_id in (3041, 3003, 3001):
+                await d.get(f"cmd=use&id={item_id}&store_type=0&page=1")
+                if "不能再使用" in d.html:
+                    continue
+                d.log(f"补体力({item_id}): {d.find(r'</p><p>(.*?)<br />') or d.find() or '已补'}")
+                break
+            await d.get("cmd=index&style=1")
+            m2 = re.search(r"体力:(\d+)/(\d+)", d.html)
+            if m2 and int(m2.group(1)) <= before:
+                d.log("消耗体力 -> 体力不足且药水用尽，停止")
+                return
+            continue
+
+        # 打一轮好友 BOSS
+        await d.get("cmd=friendlist&page=1")
+        uins = d.findall(r"侠：.*?B_UID=(\d+)")
+        if not uins:
+            d.log("消耗体力 -> 无好友可挑战")
+            return
+        for u in uins:
+            await d.get("cmd=index&style=1")
+            m3 = re.search(r"体力:(\d+)/(\d+)", d.html)
+            if not m3:
+                return
+            if int(m3.group(1)) < 10:
+                break
+            await d.get(f"cmd=fight&B_UID={u}")
+            if "使用规则" in d.html:
+                d.log(d.find(r"】</p><p>(.*?)<br />"))
+                return
+            d.log(f"消耗体力 -> {d.find(r'<br />(.*?)，') or '打完了'}")
+    d.log("消耗体力 -> 达到循环上限")
+
+
 async def c_get_material_quantity(d: DaLeDou, item_id: str | int) -> int:
     """返回背包物品数量"""
     await d.get(f"cmd=owngoods&id={item_id}")

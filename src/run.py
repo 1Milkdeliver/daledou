@@ -5,6 +5,7 @@ from collections import Counter
 from typing import Callable
 
 from src.tasks.register import TaskModule
+from src.tasks.common import c_消耗体力
 from src.utils.client import Client, RequestError
 from src.utils.config import Config, ConfigResolver
 from src.utils.daledou import DaLeDou
@@ -129,6 +130,17 @@ class TaskRunner:
                             except Exception:
                                 d.log(traceback.format_exc(), task_name)
                                 continue
+
+                        # 午间收尾：好友 BOSS 战循环消耗体力（2026-08-24 用户指令
+                        # "补完就消耗"：补满体力后不浪费，反复挑战好友直到体力打空/药水用完）
+                        if self.module == TaskModule.noon:
+                            d.task_name = "消耗体力"
+                            try:
+                                await c_消耗体力(d)
+                            except RequestError as e:
+                                d.log(f"任务网络错误（重试后仍失败）: {e}", "消耗体力")
+                            except Exception:
+                                d.log(traceback.format_exc(), "消耗体力")
 
                         elapsed = DateTime.now() - account_start
                         d.log(f"{DateTime.format_timedelta(elapsed)}\n", "运行耗时")
