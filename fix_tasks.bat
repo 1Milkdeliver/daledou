@@ -7,4 +7,4 @@ schtasks /Create /TN "daledou-evening" /TR "\"D:\Deepseek Harness\daledou\run_ev
 schtasks /Create /TN "daledou-snapshot" /TR "\"D:\Deepseek Harness\daledou\run_snapshot.bat\"" /SC DAILY /ST 22:00 /F
 schtasks /Create /TN "daledou-snapshot6" /TR "\"D:\Deepseek Harness\daledou\run_snapshot6.bat\"" /SC DAILY /ST 06:05 /F
 schtasks /Create /TN "daledou-battlereports" /TR "\"D:\Deepseek Harness\daledou\run_battlereports.bat\"" /SC DAILY /ST 14:30 /F
-schtasks /Create /TN "daledou-monitor" /TR "\"D:\Deepseek Harness\daledou\run_monitor.bat\"" /SC MINUTE /MO 30 /F
+schtasks /Create /TN "daledou-monitor" /TR "\"D:\Deepseek Harness\daledou\run_monitor.bat\"" /SC DAILY /ST 08:00 /F
