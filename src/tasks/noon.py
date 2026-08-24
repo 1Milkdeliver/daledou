@@ -38,8 +38,8 @@ async def 恢复(d: DaLeDou):
     背包资源最大化：体力/活力不足时自动用药水补满（库存充足，无限用）。
     体力补到 ~95，活力补到 ~30，保证后续 好友/侠侣/竞技场/历练 等每日战斗配额全部完成。
     """
-    await c_ensure_stamina(d, threshold=70)
-    await c_ensure_vitality(d, threshold=20)
+    await c_ensure_stamina(d, threshold=98)
+    await c_ensure_vitality(d, threshold=48)
 
 
 @register()
