@@ -39,6 +39,27 @@ async def c_ensure_vitality(d: DaLeDou, threshold: int = 15):
         d.log(f"补活力({item_id},缺口{gap}): {d.find(r'</p><p>(.*?)<br />') or d.find() or '已补'}")
 
 
+async def c_use_all_拳套(d: DaLeDou):
+    """用光背包里所有拳套类道具（神来拳套/神来拳套(赠)等，攻击增益），战斗前使用。
+
+    2026-08-24 用户指令"拳套都用上"：不屯增益道具，全用掉供 好友/侠侣/历练 战斗消耗。
+    """
+    for p in range(1, 50):
+        await d.get(f"cmd=store&store_type=0&page={p}")
+        data = d.findall(r'id=(\d+)">(.*?)</a>数量：(\d+)')
+        for _id, material_name, quantity in data:
+            if "拳套" not in material_name:
+                continue
+            for _ in range(int(quantity)):
+                await d.get(f"cmd=use&id={_id}")
+                if "使用规则" in d.html or "不能使用" in d.html:
+                    d.log(f"{material_name}（{_id}） -> {d.find(r'】</p><p>(.*?)<')}")
+                    return
+                d.log(f"{material_name} -> {d.find() or '已使用'}")
+        if "下页" not in d.html:
+            break
+
+
 async def c_get_material_quantity(d: DaLeDou, item_id: str | int) -> int:
     """返回背包物品数量"""
     await d.get(f"cmd=owngoods&id={item_id}")

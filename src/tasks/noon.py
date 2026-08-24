@@ -1,4 +1,4 @@
-﻿import asyncio
+import asyncio
 import random
 import re
 
@@ -10,6 +10,7 @@ from .common import (
     c_get_doushenta_cd,
     c_ensure_stamina,
     c_ensure_vitality,
+    c_use_all_拳套,
     c_邪神秘宝,
     c_帮派商会,
     c_任务派遣中心,
@@ -35,11 +36,12 @@ async def 邪神秘宝(d: DaLeDou):
 @register()
 async def 恢复(d: DaLeDou):
     """
-    背包资源最大化：体力/活力不足时自动用药水补满（库存充足，无限用）。
-    体力补到 ~95，活力补到 ~30，保证后续 好友/侠侣/竞技场/历练 等每日战斗配额全部完成。
+    背包资源最大化：体力/活力补满到上限（100/50），不浪费（按缺口选最小药水），
+    然后拳套全部用上（攻击增益），保证后续 好友/侠侣/竞技场/历练 等每日战斗配额全部完成。
     """
-    await c_ensure_stamina(d, threshold=98)
-    await c_ensure_vitality(d, threshold=48)
+    await c_ensure_stamina(d, threshold=100)
+    await c_ensure_vitality(d, threshold=50)
+    await c_use_all_拳套(d)
 
 
 @register()
