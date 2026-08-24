@@ -40,9 +40,16 @@ CLAIM_TASKS = [
 
 def log(msg: str):
     line = f"{datetime.now():%Y-%m-%d %H:%M:%S} | {msg}"
-    print(line)
-    with LOG.open("a", encoding="utf-8") as f:
-        f.write(line + "\n")
+    # 文件写入是可靠日志源（UTF-8，定时环境下 stdout 可能是 GBK 导致 print 报错）
+    try:
+        with LOG.open("a", encoding="utf-8") as f:
+            f.write(line + "\n")
+    except Exception:
+        pass
+    try:
+        print(line)
+    except Exception:
+        pass  # stdout 编码问题不影响文件日志
 
 
 def entry_map(html: str) -> list[str]:
