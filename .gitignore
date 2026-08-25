@@ -20,6 +20,9 @@ codex_prompts.md
 codex_run.bat
 自动化说明.md
 
+# 内部 AI 协作文档（Hermes↔Codex 交接协议，仅本机，不开源）
+research/Hermes接手手册.md
+
 # 本机定时任务重建脚本（含本机绝对路径）
 fix_tasks.bat
 fix_monitor_tasks.bat
