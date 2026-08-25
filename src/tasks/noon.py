@@ -24,7 +24,7 @@ from .common import (
 )
 
 
-registry = Registry(TaskModule.noon, schedule_time="13:01:00", description="午间任务")
+registry = Registry(TaskModule.noon, schedule_time="06:10:00", description="午间任务")
 register = registry.register
 
 
