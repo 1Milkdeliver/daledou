@@ -23,7 +23,3 @@ codex_run.bat
 # 本机定时任务重建脚本（含本机绝对路径）
 fix_tasks.bat
 fix_monitor_tasks.bat
-
-# 订阅上游脚本（开源后本仓库即主仓库，不再需要）
-update.ps1
-update_run.bat
