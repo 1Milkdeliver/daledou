@@ -393,6 +393,10 @@ async def c_龙凰论武(d: DaLeDou):
     count: int = d.config("龙凰之境.龙凰论武.count")
     for _ in range(count):
         data = d.findall(r"uin=(\d+).*?idx=(\d+)")
+        if not data:
+            # 无可挑战对手（空榜/已全部挑战/页面未加载出列表）→ 跳过，避免 random.choice 空序列崩溃
+            d.log("龙凰论武: 无可挑战对手，跳过本次挑战")
+            break
         uin, _idx = random.choice(data)
         # 挑战
         await d.get(f"cmd=dragonphoenix&op=pk&zone=1&uin={uin}&idx={_idx}")
