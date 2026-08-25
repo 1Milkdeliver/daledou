@@ -133,7 +133,9 @@ class TaskRunner:
 
                         # 午间收尾：好友 BOSS 战循环消耗体力（2026-08-24 用户指令
                         # "补完就消耗"：补满体力后不浪费，反复挑战好友直到体力打空/药水用完）
-                        if self.module == TaskModule.noon:
+                        # 注意：仅完整模块运行时执行（registry>1）。单任务调用（如监控脚本
+                        # uv run main.py noon.幸运鹅）不触发，避免监控领取时误消耗体力/药水。
+                        if self.module == TaskModule.noon and len(self.registry) > 1:
                             d.task_name = "消耗体力"
                             try:
                                 await c_消耗体力(d)
