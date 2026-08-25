@@ -162,8 +162,9 @@ enabled = d.config("门派.门派高香.enabled")
 1. 克隆仓库到本地
 2. 阅读 README.md 了解项目：它是请求大乐斗文字版接口做日常任务自动化的，用 uv 管理（Python 3.13+）
 3. 用 uv sync 安装依赖
-4. 检查 config/dld_cookie.yaml —— 如果不存在，告诉我怎么用手机 Via 浏览器抓取大乐斗 Cookie
-   （参考 README 的"常见问题"：Via 浏览器访问文字版 → 一键登录 → 查看 cookies → 复制）
+4. 检查 config/dld_cookie.yaml —— 如果不存在，告诉我怎么抓取大乐斗 Cookie
+   （参考 README 的"常见问题"：电脑浏览器打开文字版链接 → QQ登录 → F12 → Network → 复制 Cookie 请求头；
+   或手机 Via 浏览器一键登录后查看 cookies）
    注意：cookie 是我的账号凭证，抓好后写入 config/dld_cookie.yaml，不要打印到对话里
 5. 运行 uv run main.py -h 确认 CLI 正常加载
 6. 运行 uv run main.py noon.邪神秘宝 做单任务冒烟测试（免费任务，安全）
@@ -211,15 +212,31 @@ enabled = d.config("门派.门派高香.enabled")
 
 **Q: 大乐斗文字版链接**
 
-**A:** https://dld.qzapp.z.qq.com/qpet/cgi-bin/phonepk?cmd=index&style=1
+**A:** 文字版入口（浏览器直接打开，未登录会跳 QQ 登录页）：
+- https://dld.qzapp.z.qq.com/qpet/cgi-bin/phonepk?zapp_uin=&B_UID=0&sid=&channel=0&g_ut=1&cmd=index
+- 简写：https://dld.qzapp.z.qq.com/qpet/cgi-bin/phonepk?cmd=index&style=1
 
 **Q: 如何获取大乐斗 Cookie**
 
-**A:** 以安卓为例
+**A:** 方式一（推荐）：电脑浏览器网页登录 + F12
+1. 浏览器打开上面的文字版链接，未登录会跳转 **QQ帐号安全登录** 页，用 QQ 扫码/登录即可
+2. 登录后按 **F12** 打开开发者工具 → **Network（网络）** 标签
+3. 刷新页面，点任意一个请求（如 `phonepk?cmd=index`）→ **Headers（标头）** → 找到 `Cookie:` 请求头
+4. 复制 `Cookie:` 后面的整段值，写入 `config/dld_cookie.yaml`
+
+方式二：浏览器扩展 **Cookie Editor**
+1. 安装 Cookie Editor 扩展（Chrome/Edge 商店都有）
+2. 打开文字版链接并登录，点扩展图标 → **Export（导出）** 全部 cookie
+3. 导出内容就是 cookie 字符串，写入 `config/dld_cookie.yaml`
+
+方式三：手机 Via 浏览器
 1. 应用商店安装 **Via 浏览器** 并设为默认浏览器
 2. 用 Via 访问文字版链接，选择**一键登录**（不要账号密码登录）
 3. 登录后等 5 秒，Via 左上角出现 ✓ 图标，点击它
 4. 选择 **查看 cookies**，复制 cookie 即可
+
+> 💡 注意：cookie 中的 `newuin` 字段就是你的 QQ 号，脚本靠它识别账号。
+> cookie 有效期很长（实测一年以上），失效后重新登录抓一次即可。
 
 **Q: 脚本是否会扣除鹅币/斗豆/斗币**
 
