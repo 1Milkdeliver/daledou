@@ -12,3 +12,18 @@ config/dld_cookie.yaml
 
 # 私密情报文档（含账号状态，仅本机）
 情报汇总.md
+
+# 内部运维文档（含本地路径/QQ，仅本机使用，不入库）
+AGENTS.md
+CODEX接手说明.md
+codex_prompts.md
+codex_run.bat
+自动化说明.md
+
+# 本机定时任务重建脚本（含本机绝对路径）
+fix_tasks.bat
+fix_monitor_tasks.bat
+
+# 订阅上游脚本（开源后本仓库即主仓库，不再需要）
+update.ps1
+update_run.bat

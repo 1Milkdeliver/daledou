@@ -14,7 +14,13 @@ REPO = Path(__file__).resolve().parent.parent
 
 def main():
     date = sys.argv[1] if len(sys.argv) > 1 else ""
-    logs = sorted((REPO / "log/1206423023").glob("*.log"))
+    # 自动发现账号日志目录（log/<qq>/），不硬编码 QQ
+    log_root = REPO / "log"
+    acct_dirs = [d for d in log_root.iterdir() if d.is_dir() and d.name.isdigit()]
+    if not acct_dirs:
+        print("没有账号日志目录（log/<qq>/）")
+        sys.exit(1)
+    logs = sorted((acct_dirs[0]).glob("*.log"))
     if date:
         logs = [f for f in logs if date in f.name]
     if not logs:

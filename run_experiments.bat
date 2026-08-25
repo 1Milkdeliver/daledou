@@ -1,4 +1,4 @@
-@echo off
-cd /d "D:\Deepseek Harness\daledou"
+﻿@echo off
+cd /d "%~dp0"
 set PYTHONIOENCODING=utf-8
-"C:\Users\Huawei\AppData\Local\hermes\bin\uv.exe" run python research/daily_experiments.py >> log\scheduler_experiments.log 2>&1
+uv run python research/daily_experiments.py >> log\scheduler_experiments.log 2>&1
