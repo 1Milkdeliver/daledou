@@ -91,9 +91,18 @@ async def c_消耗体力(d: DaLeDou):
                 return
             continue
 
-        # 打一轮好友 BOSS
-        await d.get("cmd=friendlist&page=1")
-        uins = d.findall(r"侠：.*?B_UID=(\d+)")
+        # 打一轮好友（所有好友含"已乐斗"都能打并消耗体力，实测已乐斗仍可挑战；排除心魔自身）
+        # d.html 是原始 HTML，链接为 &amp;cmd=fight&amp;B_UID= 需匹配实体
+        MY_UID = "1206423023"
+        uins = []
+        for p in range(1, 30):
+            await d.get(f"cmd=friendlist&page={p}")
+            u = d.findall(r'cmd=fight(?:&amp;|&)B_UID=(\d+)')
+            for uid in u:
+                if uid != MY_UID and uid not in uins:
+                    uins.append(uid)
+            if "下页" not in d.html or len(uins) >= 50:
+                break
         if not uins:
             d.log("消耗体力 -> 无好友可挑战")
             return
