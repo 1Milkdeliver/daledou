@@ -274,27 +274,27 @@ async def 分享(d: DaLeDou):
             # 已经没有剩余的周挑战数
             # 您需要消耗斗神符才能继续挑战斗神塔
 
-    # 分享爬完后，只要不死就继续挑战；死亡且免费复活次数>0 则复活继续（2026-08-23 实测直通100层）
-    for _ in range(100):
-        await d.get("cmd=towerfight&type=0")
-        d.log(f"斗神塔 -> {d.find()}")
-        await asyncio.sleep(second)
-        if "您战胜了" in d.html:
-            continue
-        # 冷却中（战斗剩余时间）→ 等待重试，而非退出（2026-08-24 实测：爬太快触发冷却）
-        if "冷却" in d.html or "稍后" in d.html:
-            d.log("斗神塔 -> 冷却中，等待后重试")
-            await asyncio.sleep(second + 3)
-            continue
-        # 非胜利：败给 / 塔顶 / 需斗神符
+    # 自动挑战扫荡（type=11 一键扫荡，快，不需逐层等待）
+    # 2026-08-28 用户指示：斗神塔可自动挑战/一键扫荡，不用逐层 type=0+sleep 等待
+    for _ in range(30):
+        await d.get("cmd=towerfight&type=11")
+        d.log(f"斗神塔自动 -> {d.find()}")
+        await asyncio.sleep(1)  # 仅防请求过密，不逐层等待
+        if "没有" in d.html and "周挑战数" in d.html:
+            break  # 本周挑战次数用完
+        if "结束挑战" in d.html:
+            await d.get("cmd=towerfight&type=7")
+            d.log(f"斗神塔结束 -> {d.find()}")
+            break
+        # 败给/打趴：可复活则复活继续
         if "败给" in d.html or "打趴" in d.html:
             revive = re.search(r"剩余复活次数：(\d+)", d.html)
             if revive and int(revive.group(1)) > 0:
                 await d.get("cmd=towerfight&type=2")  # 免费复活
                 d.log("斗神塔 -> 复活继续")
-                await asyncio.sleep(second)
+                await asyncio.sleep(1)
                 continue
-        break  # 塔顶 / 需斗神符 / 复活次数用完
+            break  # 复活次数用完
 
     # 自动挑战收尾
     await d.get("cmd=towerfight&type=11")
