@@ -696,6 +696,22 @@ async def 历练(d: DaLeDou):
                 # 还不能挑战
                 break
 
+    # 遍历所有可挑战BOSS（get_boss_id），消耗活力到0
+    # 2026-08-28 用户指令：历练单BOSS有挑战上限(每BOSS3次)，但可挑战其他BOSS继续消耗活力
+    # 实测 get_boss_id 可挑战BOSS(6374/6373/6354/6353)能把活力打到0
+    for _id in get_boss_id():
+        if _id in config and config.get(_id, 0) > 0:
+            continue  # 已在上面打过
+        for _ in range(3):
+            await d.get(f"cmd=mappush&subtype=3&mapid=6&npcid={_id}&pageid=2")
+            if "您还没有打到该历练场景" in d.html:
+                break
+            d.log(d.find(r"阅历值：\d+<br />(.*?)<br />"))
+            if "活力不足" in d.html:
+                return  # 活力药水也用尽
+            elif "BOSS" not in d.html:
+                break
+
 
 @register()
 async def 镖行天下(d: DaLeDou):
